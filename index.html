@@ -1,0 +1,100 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+ <meta charset="UTF-8">
+ <title></title>
+ <link rel="stylesheet" type="text/css" href="style.css">
+ <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+ <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+ <script type="text/javascript">
+  var io = io.connect('http://localhost:8080'); //replace {hostname} with localhost and the port number you had set
+  //listen to display message event
+$(document).ready(function (){
+
+  io.emit('get_auctions', 'I WANT MY AUCTIONS');
+
+  io.on('give_auctions', function(auctions)
+  {
+    for( i in auctions)
+    {
+      id=auctions[i].id;
+    $('tbody').append("<tr><td>"+id+"</td><td>"+ auctions[i].name + "</td><td>"+auctions[i].description+"</td><td class='price_"+id+"'>" + auctions[i].price + "</td><td class='winner_"+id+"'>" + auctions[i].winner + "</td><td><input type='hidden' class='id' value='"+id+"'><input type='text' class='bidder_name_"+id+"' placeholder='Your Name'><input type='text' class='bidder_price_"+id+"' placeholder='Your Bid'><button class='bid' auction_num = '"+id+"'>NEW BID</button></td><td><button class='delete' auction_num = '"+id+"'>DELETE</button></td></tr>");
+    }
+  });
+
+  io.on('auction', function (auction)
+  {
+    // alert('we should add a new auction')
+  });
+
+   io.on('update_info', function (new_auction)
+   {  
+    console.log("new info", new_auction);
+    $(".price_"+new_auction.current_auction_id).html(new_auction.current_auction_price);
+    $(".winner_"+new_auction.current_auction_id).html(new_auction.current_auction_winner);
+  });
+
+   io.on('error_message', function (data)
+   {
+      alert(data);
+   });
+
+   io.on('get_auction', function(auction) {
+      var current_auction = auction[0];
+      var current_auction = {current_auction_id: current_auction.id, current_auction_price: current_auction.price, current_auction_winner: current_auction.winner}
+      io.emit('update', current_auction)
+   })
+
+   io.on('get_new_auction', function(auction){
+      var new_auction = auction[0];
+      var new_auction = {id: new_auction.id, name: auction.name, description: auction.description, winner: auction.winner, price: auction.price};
+      io.emit('show_new_auction', new_auction);
+   })
+   //trigger event
+
+     $('#new').click(function(){
+         var name = $('#item_name').val();
+         var description = $('#description').val();
+         var price = $('#price').val();
+         var auction = {name: name, description: description, price: price};
+         io.emit('add_new', auction);
+     }) 
+
+     $(document).on('click', ".bid", function(){
+        var auction_id = $(this).attr("auction_num");
+        var bidder_name= $(".bidder_name_"+auction_id).val();
+        var bidder_price= $(".bidder_price_"+auction_id).val();
+        var auction = {auction_id: auction_id, bidder_name: bidder_name, bidder_price: bidder_price};
+        io.emit('bid', auction);
+     })
+});
+ </script>
+</head>
+<body>
+  <h1>Lets Auction!</h1>
+  <div id='container'>
+  <div>
+    <h3>Add a new auction</h3>
+      Item Name: <input type='text' id='item_name'>
+      Description: <input type='text' id='description'>
+      Item Price: <input type='text' id='price'>
+      <button id='new'>Add Auction</button>
+  </div>
+
+<table>
+  <thead>
+    <th>ID</th>
+    <th>Item</th>
+    <th>Description</th>
+    <th>Current Bid</th>
+    <th>Current Winner</th>
+    <th>Bid</th>
+    <th>Delete</th>
+  </thead>
+  <tbody>
+ 
+  </tbody>
+</table>
+</div>
+</body>
+</html>

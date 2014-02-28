@@ -1,0 +1,30 @@
+body {
+	background-color: #4183C4;
+	font-family: helvetica;
+}
+
+#container {
+	width: 800px;
+	background-color: #EEEEEE;
+	margin: 0 auto;
+	padding: 20px;
+}
+
+h1 {
+	width: 840px;
+	color: #EEEEEE;
+	font-size: 100px;
+	margin: 0 auto;
+}
+
+table {
+	margin: 10px;
+	margin-left: 0px;
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+
+td, th {
+	padding: 5px;
+	border: 1px solid black;
+}
